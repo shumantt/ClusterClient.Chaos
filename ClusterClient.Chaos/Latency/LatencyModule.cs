@@ -16,12 +16,6 @@ namespace ClusterClient.Chaos.Latency
             this.delayProvider = delayProvider;
             this.rateProvider = rateProvider;
         }
-
-        public LatencyModule(TimeSpan delay, double rate)
-        {
-            delayProvider = () => delay;
-            rateProvider = () => rate;
-        }
         
         public async Task<ClusterResult> ExecuteAsync(IRequestContext context, Func<IRequestContext, Task<ClusterResult>> next)
         {
