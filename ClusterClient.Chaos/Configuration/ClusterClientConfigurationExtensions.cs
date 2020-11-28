@@ -13,7 +13,7 @@ namespace ClusterClient.Chaos.Configuration
             Func<TimeSpan> delayProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(delayProvider, rateProvider), RequestModule.TimeoutValidation, ModulePosition.After);
+            configuration.AddRequestModule(new LatencyModule(delayProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
         }
         
         public static void SetupLatencyChaos(
