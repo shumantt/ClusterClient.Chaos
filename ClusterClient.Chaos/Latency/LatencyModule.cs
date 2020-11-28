@@ -19,25 +19,16 @@ namespace ClusterClient.Chaos.Latency
         
         public async Task<ClusterResult> ExecuteAsync(IRequestContext context, Func<IRequestContext, Task<ClusterResult>> next)
         {
-            if (ShouldAddLatency())
+            var delay = delayProvider();
+            var remainingTimeBudget = context.Budget.Remaining;
+            if (delay > remainingTimeBudget)
             {
-                var delay = delayProvider();
-                var remainingTimeBudget = context.Budget.Remaining;
-                if (delay > remainingTimeBudget)
-                {
-                    return new ClusterResult(ClusterResultStatus.TimeExpired, new ReplicaResult[] {}, null, context.Request);
-                }
-                
-                await Task.Delay(delay, context.CancellationToken).ConfigureAwait(false);
+                return new ClusterResult(ClusterResultStatus.TimeExpired, new ReplicaResult[] {}, null, context.Request);
             }
+
+            await LatencyPerformer.PerformLatencyAsync(delay, rateProvider(), context.CancellationToken).ConfigureAwait(false);
             
             return await next(context).ConfigureAwait(false);
-        }
-
-        private bool ShouldAddLatency()
-        {
-            var rate = rateProvider();
-            return rate > 0 && ThreadSafeRandom.NextDouble() <= rate;
         }
     }
 }

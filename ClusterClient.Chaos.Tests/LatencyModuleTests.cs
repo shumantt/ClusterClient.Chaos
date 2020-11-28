@@ -35,34 +35,6 @@ namespace ClusterClient.Chaos.Tests
                 return Task.FromResult<ClusterResult>(null);
             };
         }
-        
-        [Test]
-        public async Task LatencyAddedToRequest()
-        {
-            var delay = TimeSpan.FromMilliseconds(100);
-            var module = new LatencyModule(() => delay, () => 1);
-            
-            runNextStopwatch.Start();
-            await module.ExecuteAsync(defaultContext, defaultNext);
-            
-            nextExecuted.Should().BeTrue();
-            runNextStopwatch.IsRunning.Should().BeFalse();
-            runNextStopwatch.Elapsed.Should().BeGreaterOrEqualTo(delay);
-        }
-        
-        [Test]
-        public async Task NoLatencyAdded_WhenRateIsZero()
-        {
-            var delay = TimeSpan.FromSeconds(5);
-            var module = new LatencyModule(() => delay, () => 0);
-            
-            runNextStopwatch.Start();
-            await module.ExecuteAsync(defaultContext, defaultNext);
-            
-            nextExecuted.Should().BeTrue();
-            runNextStopwatch.IsRunning.Should().BeFalse();
-            runNextStopwatch.Elapsed.Should().BeLessThan(delay);
-        }
 
         [Test]
         public async Task TimeExpiredReturn_WhenRequestedLatencyLessThanBudget()
