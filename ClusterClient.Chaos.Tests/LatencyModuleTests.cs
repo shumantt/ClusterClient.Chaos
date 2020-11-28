@@ -47,7 +47,7 @@ namespace ClusterClient.Chaos.Tests
             
             nextExecuted.Should().BeTrue();
             runNextStopwatch.IsRunning.Should().BeFalse();
-            runNextStopwatch.Elapsed.Should().BeGreaterThan(delay);
+            runNextStopwatch.Elapsed.Should().BeGreaterOrEqualTo(delay);
         }
         
         [Test]
