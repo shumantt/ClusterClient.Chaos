@@ -15,7 +15,6 @@ namespace ClusterClient.Chaos.Tests
     {
         private IRequestContext defaultContext;
         private Func<IRequestContext, Task<ClusterResult>> defaultNext;
-        private Stopwatch runNextStopwatch;
         private bool nextExecuted;
         
         
@@ -26,12 +25,10 @@ namespace ClusterClient.Chaos.Tests
             defaultContext.Budget.Remaining.Returns(TimeSpan.MaxValue);
             defaultContext.CancellationToken.Returns(new CancellationToken());
             
-            runNextStopwatch = new Stopwatch();
             nextExecuted = false;
             defaultNext = _ =>
             {
                 nextExecuted = true;
-                runNextStopwatch.Stop();
                 return Task.FromResult<ClusterResult>(null);
             };
         }
