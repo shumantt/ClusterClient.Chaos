@@ -23,8 +23,12 @@ namespace ClusterClient.Chaos.Latency
             {
                 var delay = delayProvider();
                 var remainingTimeBudget = context.Budget.Remaining;
-                var latency = delay > remainingTimeBudget ? remainingTimeBudget : delay;
-                await Task.Delay(latency, context.CancellationToken).ConfigureAwait(false);
+                if (delay > remainingTimeBudget)
+                {
+                    return new ClusterResult(ClusterResultStatus.TimeExpired, new ReplicaResult[] {}, null, context.Request);
+                }
+                
+                await Task.Delay(delay, context.CancellationToken).ConfigureAwait(false);
             }
             
             return await next(context).ConfigureAwait(false);
@@ -32,7 +36,8 @@ namespace ClusterClient.Chaos.Latency
 
         private bool ShouldAddLatency()
         {
-            return ThreadSafeRandom.NextDouble() <= rateProvider();
+            var rate = rateProvider();
+            return rate > 0 && ThreadSafeRandom.NextDouble() <= rate;
         }
     }
 }
