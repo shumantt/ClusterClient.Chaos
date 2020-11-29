@@ -22,9 +22,15 @@ namespace ClusterClient.Chaos.Latency
         public async Task<ReplicaResult> SendToReplicaAsync(Uri replica, Request request, TimeSpan? connectionTimeout, TimeSpan timeout,
             CancellationToken cancellationToken)
         {
-            await LatencyPerformer.PerformLatencyAsync(delay, rate, cancellationToken).ConfigureAwait(false);
+            var leftTimeout = delay > timeout ? TimeSpan.Zero : timeout - delay;
+
+            if (leftTimeout > TimeSpan.Zero)
+            {
+                await LatencyPerformer.PerformLatencyAsync(delay, rate, cancellationToken).ConfigureAwait(false);
+            }
+            
             return await baseRequestSender
-                .SendToReplicaAsync(replica, request, connectionTimeout, timeout, cancellationToken)
+                .SendToReplicaAsync(replica, request, connectionTimeout, leftTimeout, cancellationToken)
                 .ConfigureAwait(false);
         }
     }
