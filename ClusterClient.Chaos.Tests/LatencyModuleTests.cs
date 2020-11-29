@@ -19,7 +19,7 @@ namespace ClusterClient.Chaos.Tests
         
         
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
             defaultContext = Substitute.For<IRequestContext>();
             defaultContext.Budget.Remaining.Returns(TimeSpan.MaxValue);
