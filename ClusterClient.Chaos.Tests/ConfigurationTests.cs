@@ -114,14 +114,13 @@ namespace ClusterClient.Chaos.Tests
             
             
             var delay = TimeSpan.FromMilliseconds(200);
-            var requestStrategy = Strategy.Sequential3;
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
                 {
                     configuration.Transport = transport;
                     configuration.ClusterProvider = clusterProvider;
-                    configuration.DefaultRequestStrategy = requestStrategy;
-                    configuration.SetupLatencyOnEveryNetworkCall(requestStrategy, () => delay, () => 1);
+                    configuration.DefaultRequestStrategy = Strategy.Sequential3;
+                    configuration.SetupLatencyOnEveryNetworkCall(() => delay, () => 1);
                 });
 
             var request = new Request("GET", new Uri("/fakemethod", UriKind.Relative));

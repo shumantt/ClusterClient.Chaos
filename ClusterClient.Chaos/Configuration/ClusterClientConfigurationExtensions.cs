@@ -27,11 +27,10 @@ namespace ClusterClient.Chaos.Configuration
 
         public static void SetupLatencyOnEveryNetworkCall(
             this IClusterClientConfiguration configuration,
-            IRequestStrategy defaultRequestStrategy,
             Func<TimeSpan> delayProvider,
             Func<double> rateProvider)
         {
-            configuration.DefaultRequestStrategy = new LatencyStrategy(delayProvider, rateProvider, defaultRequestStrategy);
+            configuration.DefaultRequestStrategy = new LatencyStrategy(delayProvider, rateProvider, configuration.DefaultRequestStrategy);
         }
     }
 }
