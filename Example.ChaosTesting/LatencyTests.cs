@@ -32,8 +32,9 @@ namespace Example.ChaosTesting
                 {
                     AllowAutoRedirect = true
                 });
+                configuration.DefaultTimeout = TimeSpan.FromSeconds(5);
                 configuration.ClusterProvider = new FixedClusterProvider("http://localhost:5000");
-                configuration.SetupTotalLatency(() => TimeSpan.FromSeconds(3), () => 0.5);
+                configuration.SetupTotalLatency(() => TimeSpan.FromSeconds(1), () => 0.05);
             });
         }
 
@@ -44,7 +45,7 @@ namespace Example.ChaosTesting
         }
         
         //NOTE This test should fail
-        [Repeat(5)]
+        [Repeat(20)]
         [Test]
         public async Task TestBuildInfoSequentially()
         {
@@ -54,12 +55,12 @@ namespace Example.ChaosTesting
             stopwatch.Stop();
 
             Console.WriteLine(stopwatch.Elapsed);
-            stopwatch.Elapsed.Should().BeLessOrEqualTo(TimeSpan.FromSeconds(2.5));
+            stopwatch.Elapsed.Should().BeLessOrEqualTo(TimeSpan.FromSeconds(1));
             info.Should().NotBeEmpty();
         }
         
         //NOTE This test should fail
-        [Repeat(5)]
+        [Repeat(20)]
         [Test]
         public async Task TestBuildInfoInParallel()
         {
@@ -69,12 +70,12 @@ namespace Example.ChaosTesting
             stopwatch.Stop();
 
             Console.WriteLine(stopwatch.Elapsed);
-            stopwatch.Elapsed.Should().BeLessOrEqualTo(TimeSpan.FromSeconds(2.5));
+            stopwatch.Elapsed.Should().BeLessOrEqualTo(TimeSpan.FromSeconds(1));
             info.Should().NotBeEmpty();
         }
         
         //NOTE This test should pass
-        [Repeat(5)]
+        [Repeat(20)]
         [Test]
         public async Task TestBuildInfoWithConfiguredTimeouts()
         {
@@ -84,35 +85,8 @@ namespace Example.ChaosTesting
             stopwatch.Stop();
 
             Console.WriteLine(stopwatch.Elapsed);
-            stopwatch.Elapsed.Should().BeLessOrEqualTo(TimeSpan.FromSeconds(2.5));
+            stopwatch.Elapsed.Should().BeLessOrEqualTo(TimeSpan.FromSeconds(1));
             info.Should().NotBeEmpty();
-        }
-
-        private async Task<List<string>> BuildInfoWithConfiguredTimeouts()
-        {
-            var infoBuildTimeout = TimeSpan.FromSeconds(2);
-            var infos = new List<string>();
-            var nameTask = client.SendAsync(Request.Get("name"), timeout: infoBuildTimeout);
-            var ageTask = client.SendAsync(Request.Get("age"), timeout: infoBuildTimeout);
-            var cityTask = client.SendAsync(Request.Get("city"), timeout: infoBuildTimeout);
-            await Task.WhenAll(nameTask, ageTask, cityTask);
-            
-            if (nameTask.Result.Status == ClusterResultStatus.Success)
-            {
-                infos.Add(nameTask.Result.Response.Content.ToString());
-            }
-            
-            if (ageTask.Result.Status == ClusterResultStatus.Success)
-            {
-                infos.Add(ageTask.Result.Response.Content.ToString());
-            }
-            
-            if (cityTask.Result.Status == ClusterResultStatus.Success)
-            {
-                infos.Add(cityTask.Result.Response.Content.ToString());
-            }
-
-            return infos;
         }
 
         private async Task<List<string>> BuildInfoSequentially()
@@ -148,6 +122,33 @@ namespace Example.ChaosTesting
             var nameTask = client.SendAsync(Request.Get("name"));
             var ageTask = client.SendAsync(Request.Get("age"));
             var cityTask = client.SendAsync(Request.Get("city"));
+            await Task.WhenAll(nameTask, ageTask, cityTask);
+            
+            if (nameTask.Result.Status == ClusterResultStatus.Success)
+            {
+                infos.Add(nameTask.Result.Response.Content.ToString());
+            }
+            
+            if (ageTask.Result.Status == ClusterResultStatus.Success)
+            {
+                infos.Add(ageTask.Result.Response.Content.ToString());
+            }
+            
+            if (cityTask.Result.Status == ClusterResultStatus.Success)
+            {
+                infos.Add(cityTask.Result.Response.Content.ToString());
+            }
+
+            return infos;
+        }
+
+        private async Task<List<string>> BuildInfoWithConfiguredTimeouts()
+        {
+            var infoBuildTimeout = TimeSpan.FromSeconds(0.9);
+            var infos = new List<string>();
+            var nameTask = client.SendAsync(Request.Get("name"), timeout: infoBuildTimeout);
+            var ageTask = client.SendAsync(Request.Get("age"), timeout: infoBuildTimeout);
+            var cityTask = client.SendAsync(Request.Get("city"), timeout: infoBuildTimeout);
             await Task.WhenAll(nameTask, ageTask, cityTask);
             
             if (nameTask.Result.Status == ClusterResultStatus.Success)
