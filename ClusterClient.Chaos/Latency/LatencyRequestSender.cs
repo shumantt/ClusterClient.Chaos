@@ -9,12 +9,14 @@ namespace ClusterClient.Chaos.Latency
     public class LatencyRequestSender : IRequestSender
     {
         private readonly IRequestSender baseRequestSender;
+        private readonly ILatencyPerformer latencyPerformer;
         private readonly TimeSpan delay;
         private readonly double rate;
 
-        public LatencyRequestSender(IRequestSender baseRequestSender, TimeSpan delay, double rate)
+        public LatencyRequestSender(IRequestSender baseRequestSender, ILatencyPerformer latencyPerformer, TimeSpan delay, double rate)
         {
             this.baseRequestSender = baseRequestSender;
+            this.latencyPerformer = latencyPerformer;
             this.delay = delay;
             this.rate = rate;
         }
@@ -22,13 +24,14 @@ namespace ClusterClient.Chaos.Latency
         public async Task<ReplicaResult> SendToReplicaAsync(Uri replica, Request request, TimeSpan? connectionTimeout, TimeSpan timeout,
             CancellationToken cancellationToken)
         {
-            var leftTimeout = delay > timeout ? TimeSpan.Zero : timeout - delay;
-
-            if (leftTimeout > TimeSpan.Zero)
+            var leftTimeout = timeout;
+            if (latencyPerformer.ShouldPerformLatency(rate))
             {
-                await LatencyPerformer.PerformLatencyAsync(delay, rate, cancellationToken).ConfigureAwait(false);
+                leftTimeout = delay > timeout ? TimeSpan.Zero : timeout - delay;
+                var addedLatency = leftTimeout > TimeSpan.Zero ? delay : timeout; 
+                await latencyPerformer.PerformLatencyAsync(addedLatency, cancellationToken).ConfigureAwait(false);
             }
-            
+
             return await baseRequestSender
                 .SendToReplicaAsync(replica, request, connectionTimeout, leftTimeout, cancellationToken)
                 .ConfigureAwait(false);

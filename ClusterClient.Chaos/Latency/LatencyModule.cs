@@ -10,23 +10,30 @@ namespace ClusterClient.Chaos.Latency
     {
         private readonly Func<TimeSpan> delayProvider;
         private readonly Func<double> rateProvider;
+        private ILatencyPerformer latencyPerformer;
 
-        public LatencyModule(Func<TimeSpan> delayProvider, Func<double> rateProvider)
+        public LatencyModule(ILatencyPerformer latencyPerformer, Func<TimeSpan> delayProvider, Func<double> rateProvider)
         {
             this.delayProvider = delayProvider;
             this.rateProvider = rateProvider;
+            this.latencyPerformer = latencyPerformer;
         }
         
         public async Task<ClusterResult> ExecuteAsync(IRequestContext context, Func<IRequestContext, Task<ClusterResult>> next)
         {
             var delay = delayProvider();
+            var rate = rateProvider();
             var remainingTimeBudget = context.Budget.Remaining;
-            if (delay > remainingTimeBudget)
+            if (latencyPerformer.ShouldPerformLatency(rate))
             {
-                return new ClusterResult(ClusterResultStatus.TimeExpired, new ReplicaResult[] {}, null, context.Request);
+                if (delay > remainingTimeBudget)
+                {
+                    await latencyPerformer.PerformLatencyAsync(remainingTimeBudget, context.CancellationToken).ConfigureAwait(false);
+                    return new ClusterResult(ClusterResultStatus.TimeExpired, new ReplicaResult[] {}, null, context.Request);
+                }
+                
+                await latencyPerformer.PerformLatencyAsync(delay, context.CancellationToken).ConfigureAwait(false);
             }
-
-            await LatencyPerformer.PerformLatencyAsync(delay, rateProvider(), context.CancellationToken).ConfigureAwait(false);
             
             return await next(context).ConfigureAwait(false);
         }

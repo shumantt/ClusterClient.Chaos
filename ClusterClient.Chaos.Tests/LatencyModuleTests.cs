@@ -1,8 +1,9 @@
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ClusterClient.Chaos.Latency;
+using ClusterClient.Chaos.Tests.Mocks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -26,26 +27,48 @@ namespace ClusterClient.Chaos.Tests
             defaultContext.CancellationToken.Returns(new CancellationToken());
             
             nextExecuted = false;
-            defaultNext = _ =>
+            defaultNext = ctx =>
             {
                 nextExecuted = true;
-                return Task.FromResult<ClusterResult>(null);
+                return Task.FromResult(new ClusterResult(ClusterResultStatus.Success, new List<ReplicaResult>(),null, ctx.Request));
             };
+        }
+
+        [Test]
+        public async Task LatencyFullyPerformed_WhenDelayIsLessThanBudget()
+        {
+            var delay = TimeSpan.FromSeconds(2);
+            var budget = TimeSpan.FromSeconds(1);
+            var latencyPerformer = new MockLatencyPerformer(_ => true);
+            var context = Substitute.For<IRequestContext>();
+            context.Budget.Remaining.Returns(budget);
+            
+            var module = new LatencyModule(latencyPerformer, () => delay, () => 1);
+
+            var result = await module.ExecuteAsync(context, defaultNext);
+
+            nextExecuted.Should().BeFalse();
+            result.Status.Should().Be(ClusterResultStatus.TimeExpired);
+            latencyPerformer.TotalAddedLatency.Should().Be(budget);
+            
         }
 
         [Test]
         public async Task TimeExpiredReturn_WhenRequestedLatencyLessThanBudget()
         {
             var delay = TimeSpan.FromSeconds(1);
-            var budget = TimeSpan.FromSeconds(0.5);
-            var module = new LatencyModule(() => delay, () => 1);
+            var budget = TimeSpan.FromSeconds(2);
+            var latencyPerformer = new MockLatencyPerformer(_ => true);
             var context = Substitute.For<IRequestContext>();
             context.Budget.Remaining.Returns(budget);
             
+            var module = new LatencyModule(latencyPerformer, () => delay, () => 1);
+
             var result = await module.ExecuteAsync(context, defaultNext);
 
-            nextExecuted.Should().BeFalse();
-            result.Status.Should().Be(ClusterResultStatus.TimeExpired);
+            nextExecuted.Should().BeTrue();
+            result.Status.Should().Be(ClusterResultStatus.Success);
+            latencyPerformer.TotalAddedLatency.Should().Be(delay);
         }
     }
 }

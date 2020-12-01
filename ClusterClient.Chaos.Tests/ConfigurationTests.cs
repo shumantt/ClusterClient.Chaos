@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using ClusterClient.Chaos.Configuration;
+using ClusterClient.Chaos.Tests.Mocks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -29,23 +30,20 @@ namespace ClusterClient.Chaos.Tests
             clusterProvider.GetCluster().Returns(new List<Uri> { new Uri("http://localhost1") });
             
             var delay = TimeSpan.FromMilliseconds(200);
+            var latencyPerformer = new MockLatencyPerformer(_ => true);
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
                 {
                     configuration.Transport = transport;
                     configuration.ClusterProvider = clusterProvider;
                     configuration.DefaultRequestStrategy = new SingleReplicaRequestStrategy();
-                    configuration.SetupTotalLatency(() => delay, () => 1);
+                    configuration.SetupTotalLatency(latencyPerformer,() => delay, () => 1);
                 });
             var request = new Request("GET", new Uri("/fakemethod", UriKind.Relative));
-            var stopwatch = new Stopwatch();
             
-            stopwatch.Start();
             await clusterClient.SendAsync(request);
-            stopwatch.Stop();
 
-            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(delay);
-            stopwatch.Elapsed.Should().BeLessThan(delay * 2);
+            latencyPerformer.TotalAddedLatency.Should().Be(delay);
         }
         
         [Test]
@@ -53,13 +51,13 @@ namespace ClusterClient.Chaos.Tests
         {
             var transport = Substitute.For<ITransport>();
             var clusterProvider = Substitute.For<IClusterProvider>();
-            var calledTimespans = new List<TimeSpan>();
-            var callStopWatch = new Stopwatch();
+
+            var callsCount = 0;
             transport.Capabilities.Returns(TransportCapabilities.None);
             transport
                 .SendAsync(Arg.Any<Request>(), Arg.Any<TimeSpan?>(), Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(new Response(ResponseCode.TooManyRequests)))
-                .AndDoes(_ => calledTimespans.Add(callStopWatch.Elapsed));
+                .AndDoes(_ => callsCount++);
             clusterProvider.GetCluster().Returns(new List<Uri>
             {
                 new Uri("http://localhost1"),
@@ -69,28 +67,25 @@ namespace ClusterClient.Chaos.Tests
             
             
             var delay = TimeSpan.FromMilliseconds(200);
+            var latencyPerformer = new MockLatencyPerformer(_ => true);
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
                 {
                     configuration.Transport = transport;
                     configuration.ClusterProvider = clusterProvider;
-                    configuration.RetryPolicy = new AdHocRetryPolicy((_, __, ___) => calledTimespans.Count < 3);
+                    configuration.RetryPolicy = new AdHocRetryPolicy((_, __, ___) => callsCount < 3);
                     configuration.RetryStrategy = new ImmediateRetryStrategy(3);
                     configuration.DefaultRequestStrategy = new SingleReplicaRequestStrategy();
-                    configuration.SetupLatencyOnEveryRetry(() => delay, () => 1);
+                    configuration.SetupLatencyOnEveryRetry(latencyPerformer, () => delay, () => 1);
                 });
 
             var request = new Request("GET", new Uri("/fakemethod", UriKind.Relative));
 
-            callStopWatch.Start();
+           
             await clusterClient.SendAsync(request);
 
-            calledTimespans.Count.Should().Be(3);
-            for (int i = 0; i < calledTimespans.Count; i++)
-            {
-                var timeSpan = calledTimespans[i];
-                timeSpan.Should().BeGreaterOrEqualTo(delay * (i + 1));
-            }
+            callsCount.Should().Be(3);
+            latencyPerformer.TotalAddedLatency.Should().Be(delay * 3);
         }
 
         [Test]
@@ -98,13 +93,13 @@ namespace ClusterClient.Chaos.Tests
         {
             var transport = Substitute.For<ITransport>();
             var clusterProvider = Substitute.For<IClusterProvider>();
-            var calledTimespans = new List<TimeSpan>();
-            var callStopWatch = new Stopwatch();
+            
+            var callsCount = 0;
             transport.Capabilities.Returns(TransportCapabilities.None);
             transport
                 .SendAsync(Arg.Any<Request>(), Arg.Any<TimeSpan?>(), Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(new Response(ResponseCode.TooManyRequests)))
-                .AndDoes(_ => calledTimespans.Add(callStopWatch.Elapsed));
+                .AndDoes(_ => callsCount++);
             clusterProvider.GetCluster().Returns(new List<Uri>
             {
                 new Uri("http://localhost1"),
@@ -114,26 +109,22 @@ namespace ClusterClient.Chaos.Tests
             
             
             var delay = TimeSpan.FromMilliseconds(200);
+            var latencyPerformer = new MockLatencyPerformer(_ => true);
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
                 {
                     configuration.Transport = transport;
                     configuration.ClusterProvider = clusterProvider;
                     configuration.DefaultRequestStrategy = Strategy.Sequential3;
-                    configuration.SetupLatencyOnEveryNetworkCall(() => delay, () => 1);
+                    configuration.SetupLatencyOnEveryNetworkCall(latencyPerformer, () => delay, () => 1);
                 });
 
             var request = new Request("GET", new Uri("/fakemethod", UriKind.Relative));
-
-            callStopWatch.Start();
+            
             await clusterClient.SendAsync(request);
 
-            calledTimespans.Count.Should().Be(3);
-            for (int i = 0; i < calledTimespans.Count; i++)
-            {
-                var timeSpan = calledTimespans[i];
-                timeSpan.Should().BeGreaterOrEqualTo(delay * (i + 1));
-            }
+            callsCount.Should().Be(3);
+            latencyPerformer.TotalAddedLatency.Should().Be(delay * 3);
         }
     }
 }

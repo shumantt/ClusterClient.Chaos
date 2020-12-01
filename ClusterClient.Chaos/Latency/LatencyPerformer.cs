@@ -5,16 +5,16 @@ using Vostok.Commons.Threading;
 
 namespace ClusterClient.Chaos.Latency
 {
-    public static class LatencyPerformer
+    public class LatencyPerformer : ILatencyPerformer
     {
-        public static Task PerformLatencyAsync(TimeSpan delay, double rate, CancellationToken cancellationToken)
+        public bool ShouldPerformLatency(double rate)
         {
-            if (rate > 0 && ThreadSafeRandom.NextDouble() <= rate)
-            {
-                return Task.Delay(delay, cancellationToken);
-            }
-            
-            return Task.CompletedTask;
+            return rate > 0 && ThreadSafeRandom.NextDouble() <= rate;
+        }
+
+        public Task PerformLatencyAsync(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            return Task.Delay(delay, cancellationToken);
         }
     }
 }
