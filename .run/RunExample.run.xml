@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="RunExample" type="CompoundRunConfigurationType">
+    <toRun name="ExampleClient" type="DotNetProject" />
+    <toRun name="ExampleServer" type="DotNetProject" />
+    <method v="2" />
+  </configuration>
+</component>
