@@ -19,7 +19,7 @@ namespace ExampleClient
         private static void SendWithAddedTotalLatency()
         {
             Console.WriteLine("Sending with total added latency");
-            SendAndLog(c => c.SetupTotalLatency(() => TimeSpan.FromSeconds(1), () => 0.5));
+            SendAndLog(c => c.InjectTotalLatency(() => TimeSpan.FromSeconds(1), () => 0.5));
             Console.WriteLine("Finished with total added latency");
         }
 

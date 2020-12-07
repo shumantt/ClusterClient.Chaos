@@ -12,9 +12,9 @@ namespace ClusterClient.Chaos.Latency
             return rate > 0 && ThreadSafeRandom.NextDouble() <= rate;
         }
 
-        public Task PerformLatencyAsync(TimeSpan delay, CancellationToken cancellationToken)
+        public Task PerformLatencyAsync(TimeSpan latency, CancellationToken cancellationToken)
         {
-            return Task.Delay(delay, cancellationToken);
+            return Task.Delay(latency, cancellationToken);
         }
     }
 }

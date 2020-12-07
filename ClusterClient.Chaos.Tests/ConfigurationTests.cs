@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using ClusterClient.Chaos.Configuration;
@@ -19,7 +18,7 @@ namespace ClusterClient.Chaos.Tests
     public class ConfigurationTests
     {
         [Test]
-        public async Task SetupTotalLatency_Should_AddLatencyOnceForSendMethod()
+        public async Task InjectTotalLatency_Should_AddLatencyOnceForSendMethod()
         {
             var transport = Substitute.For<ITransport>();
             var clusterProvider = Substitute.For<IClusterProvider>();
@@ -37,7 +36,7 @@ namespace ClusterClient.Chaos.Tests
                     configuration.Transport = transport;
                     configuration.ClusterProvider = clusterProvider;
                     configuration.DefaultRequestStrategy = new SingleReplicaRequestStrategy();
-                    configuration.SetupTotalLatency(latencyPerformer,() => delay, () => 1);
+                    configuration.InjectTotalLatency(latencyPerformer,() => delay, () => 1);
                 });
             var request = new Request("GET", new Uri("/fakemethod", UriKind.Relative));
             
@@ -47,7 +46,7 @@ namespace ClusterClient.Chaos.Tests
         }
         
         [Test]
-        public async Task SetupLatencyOnEveryRetry_Should_AddLatencyOnEveryRetryCall()
+        public async Task InjectLatencyOnEveryRetry_Should_AddLatencyOnEveryRetryCall()
         {
             var transport = Substitute.For<ITransport>();
             var clusterProvider = Substitute.For<IClusterProvider>();
@@ -66,7 +65,7 @@ namespace ClusterClient.Chaos.Tests
             });
             
             
-            var delay = TimeSpan.FromMilliseconds(200);
+            var latency = TimeSpan.FromMilliseconds(200);
             var latencyPerformer = new MockLatencyPerformer(_ => true);
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
@@ -76,7 +75,7 @@ namespace ClusterClient.Chaos.Tests
                     configuration.RetryPolicy = new AdHocRetryPolicy((_, __, ___) => callsCount < 3);
                     configuration.RetryStrategy = new ImmediateRetryStrategy(3);
                     configuration.DefaultRequestStrategy = new SingleReplicaRequestStrategy();
-                    configuration.SetupLatencyOnEveryRetry(latencyPerformer, () => delay, () => 1);
+                    configuration.InjectLatencyOnEveryRetry(latencyPerformer, () => latency, () => 1);
                 });
 
             var request = new Request("GET", new Uri("/fakemethod", UriKind.Relative));
@@ -85,11 +84,11 @@ namespace ClusterClient.Chaos.Tests
             await clusterClient.SendAsync(request);
 
             callsCount.Should().Be(3);
-            latencyPerformer.TotalAddedLatency.Should().Be(delay * 3);
+            latencyPerformer.TotalAddedLatency.Should().Be(latency * 3);
         }
 
         [Test]
-        public async Task SetupLatencyOnEveryNetworkCall_Should_AddLatencyOnEveryStrategyCall()
+        public async Task InjectLatencyOnEveryNetworkCall_Should_AddLatencyOnEveryStrategyCall()
         {
             var transport = Substitute.For<ITransport>();
             var clusterProvider = Substitute.For<IClusterProvider>();
@@ -108,7 +107,7 @@ namespace ClusterClient.Chaos.Tests
             });
             
             
-            var delay = TimeSpan.FromMilliseconds(200);
+            var latency = TimeSpan.FromMilliseconds(200);
             var latencyPerformer = new MockLatencyPerformer(_ => true);
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
@@ -116,7 +115,7 @@ namespace ClusterClient.Chaos.Tests
                     configuration.Transport = transport;
                     configuration.ClusterProvider = clusterProvider;
                     configuration.DefaultRequestStrategy = Strategy.Sequential3;
-                    configuration.SetupLatencyOnEveryNetworkCall(latencyPerformer, () => delay, () => 1);
+                    configuration.InjectLatencyOnEveryNetworkCall(latencyPerformer, () => latency, () => 1);
                 });
 
             var request = new Request("GET", new Uri("/fakemethod", UriKind.Relative));
@@ -124,7 +123,7 @@ namespace ClusterClient.Chaos.Tests
             await clusterClient.SendAsync(request);
 
             callsCount.Should().Be(3);
-            latencyPerformer.TotalAddedLatency.Should().Be(delay * 3);
+            latencyPerformer.TotalAddedLatency.Should().Be(latency * 3);
         }
     }
 }

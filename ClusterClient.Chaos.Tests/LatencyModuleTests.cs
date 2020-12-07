@@ -35,15 +35,15 @@ namespace ClusterClient.Chaos.Tests
         }
 
         [Test]
-        public async Task LatencyFullyPerformed_WhenDelayIsLessThanBudget()
+        public async Task LatencyFullyPerformed_WhenLatencyIsLessThanBudget()
         {
-            var delay = TimeSpan.FromSeconds(2);
+            var latency = TimeSpan.FromSeconds(2);
             var budget = TimeSpan.FromSeconds(1);
             var latencyPerformer = new MockLatencyPerformer(_ => true);
             var context = Substitute.For<IRequestContext>();
             context.Budget.Remaining.Returns(budget);
             
-            var module = new LatencyModule(latencyPerformer, () => delay, () => 1);
+            var module = new LatencyModule(latencyPerformer, () => latency, () => 1);
 
             var result = await module.ExecuteAsync(context, defaultNext);
 
@@ -56,19 +56,19 @@ namespace ClusterClient.Chaos.Tests
         [Test]
         public async Task TimeExpiredReturn_WhenRequestedLatencyLessThanBudget()
         {
-            var delay = TimeSpan.FromSeconds(1);
+            var latency = TimeSpan.FromSeconds(1);
             var budget = TimeSpan.FromSeconds(2);
             var latencyPerformer = new MockLatencyPerformer(_ => true);
             var context = Substitute.For<IRequestContext>();
             context.Budget.Remaining.Returns(budget);
             
-            var module = new LatencyModule(latencyPerformer, () => delay, () => 1);
+            var module = new LatencyModule(latencyPerformer, () => latency, () => 1);
 
             var result = await module.ExecuteAsync(context, defaultNext);
 
             nextExecuted.Should().BeTrue();
             result.Status.Should().Be(ClusterResultStatus.Success);
-            latencyPerformer.TotalAddedLatency.Should().Be(delay);
+            latencyPerformer.TotalAddedLatency.Should().Be(latency);
         }
     }
 }

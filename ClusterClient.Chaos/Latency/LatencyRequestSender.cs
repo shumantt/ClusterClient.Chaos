@@ -10,14 +10,14 @@ namespace ClusterClient.Chaos.Latency
     {
         private readonly IRequestSender baseRequestSender;
         private readonly ILatencyPerformer latencyPerformer;
-        private readonly TimeSpan delay;
+        private readonly TimeSpan latency;
         private readonly double rate;
 
-        public LatencyRequestSender(IRequestSender baseRequestSender, ILatencyPerformer latencyPerformer, TimeSpan delay, double rate)
+        public LatencyRequestSender(IRequestSender baseRequestSender, ILatencyPerformer latencyPerformer, TimeSpan latency, double rate)
         {
             this.baseRequestSender = baseRequestSender;
             this.latencyPerformer = latencyPerformer;
-            this.delay = delay;
+            this.latency = latency;
             this.rate = rate;
         }
         
@@ -27,8 +27,8 @@ namespace ClusterClient.Chaos.Latency
             var leftTimeout = timeout;
             if (latencyPerformer.ShouldPerformLatency(rate))
             {
-                leftTimeout = delay > timeout ? TimeSpan.Zero : timeout - delay;
-                var addedLatency = leftTimeout > TimeSpan.Zero ? delay : timeout; 
+                leftTimeout = latency > timeout ? TimeSpan.Zero : timeout - latency;
+                var addedLatency = leftTimeout > TimeSpan.Zero ? latency : timeout; 
                 await latencyPerformer.PerformLatencyAsync(addedLatency, cancellationToken).ConfigureAwait(false);
             }
 

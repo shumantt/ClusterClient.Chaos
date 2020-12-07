@@ -21,14 +21,14 @@ namespace ClusterClient.Chaos.Tests
         [Test]
         public async Task PerformLatencyAsync_Should_PerformLatency()
         {
-            var delay = TimeSpan.FromMilliseconds(100);
+            var latency = TimeSpan.FromMilliseconds(100);
             var stopwatch = new Stopwatch();
             
             stopwatch.Start();
-            await latencyPerformer.PerformLatencyAsync(delay, new CancellationToken());
+            await latencyPerformer.PerformLatencyAsync(latency, new CancellationToken());
             stopwatch.Stop();
 
-            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(delay);
+            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(latency);
         }
 
         [Test]
@@ -44,14 +44,14 @@ namespace ClusterClient.Chaos.Tests
         }
 
         [Test]
-        public void ShouldAddLatency_Return_False_WhenRateIsZero()
+        public void ShouldPerformLatency_Return_False_WhenRateIsZero()
         {
             var actual = latencyPerformer.ShouldPerformLatency(0);
             actual.Should().BeFalse();
         }
         
         [Test]
-        public void ShouldAddLatency_Return_True_WhenRateIsOne()
+        public void ShouldPerformLatency_Return_True_WhenRateIsOne()
         {
             var actual = latencyPerformer.ShouldPerformLatency(1);
             actual.Should().BeTrue();

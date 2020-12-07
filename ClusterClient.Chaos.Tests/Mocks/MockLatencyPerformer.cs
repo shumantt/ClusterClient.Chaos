@@ -17,9 +17,9 @@ namespace ClusterClient.Chaos.Tests.Mocks
 
         public bool ShouldPerformLatency(double rate) => shouldPerformLatency(rate);
 
-        public Task PerformLatencyAsync(TimeSpan delay, CancellationToken cancellationToken)
+        public Task PerformLatencyAsync(TimeSpan latency, CancellationToken cancellationToken)
         {
-            TotalAddedLatency += delay;
+            TotalAddedLatency += latency;
             return Task.CompletedTask;
         }
     }

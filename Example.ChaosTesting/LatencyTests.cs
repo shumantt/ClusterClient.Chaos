@@ -34,7 +34,7 @@ namespace Example.ChaosTesting
                 });
                 configuration.DefaultTimeout = TimeSpan.FromSeconds(5);
                 configuration.ClusterProvider = new FixedClusterProvider("http://localhost:5000");
-                configuration.SetupTotalLatency(() => TimeSpan.FromSeconds(1), () => 0.05);
+                configuration.InjectTotalLatency(() => TimeSpan.FromSeconds(1), () => 0.05);
             });
         }
 

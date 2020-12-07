@@ -15,7 +15,7 @@ namespace ClusterClient.Chaos.Tests
     public class LatencyRequestSenderTests
     {
         [TestCaseSource(nameof(GenerateTimeoutReducedTests))]
-        public async Task TestRequestTimeoutReducedWithDelay(TimeSpan delay, TimeSpan callTimeout, TimeSpan expectedTimeout, TimeSpan expectedPerformedDelay)
+        public async Task TestRequestTimeoutReducedWithDelay(TimeSpan latency, TimeSpan callTimeout, TimeSpan expectedTimeout, TimeSpan expectedPerformedDelay)
         {
             var baseSender = Substitute.For<IRequestSender>();
             var request = new Request("GET", new Uri("/fakemethod", UriKind.Relative));
@@ -25,7 +25,7 @@ namespace ClusterClient.Chaos.Tests
                 .SendToReplicaAsync(replica, request, null, expectedTimeout,  cancellationToken)
                 .Returns(Task.FromResult<ReplicaResult>(null));
             var latencyPerformer = new MockLatencyPerformer(_ => true);
-            var latencySender = new LatencyRequestSender(baseSender, latencyPerformer, delay, 1);
+            var latencySender = new LatencyRequestSender(baseSender, latencyPerformer, latency, 1);
 
             await latencySender.SendToReplicaAsync(replica, request, null, callTimeout, cancellationToken);
 

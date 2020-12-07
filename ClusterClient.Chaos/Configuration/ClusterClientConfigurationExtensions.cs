@@ -8,41 +8,41 @@ namespace ClusterClient.Chaos.Configuration
 {
     public static class ClusterClientConfigurationExtensions
     {
-        public static void SetupTotalLatency(
+        public static void InjectTotalLatency(
             this IClusterClientConfiguration configuration, 
-            Func<TimeSpan> delayProvider, 
+            Func<TimeSpan> latencyProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(new LatencyPerformer(), delayProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.Before);
+            configuration.AddRequestModule(new LatencyModule(new LatencyPerformer(), latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.Before);
         }
         
-        public static void SetupTotalLatency(
+        public static void InjectTotalLatency(
             this IClusterClientConfiguration configuration, 
             ILatencyPerformer latencyPerformer,
-            Func<TimeSpan> delayProvider, 
+            Func<TimeSpan> latencyProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(latencyPerformer, delayProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.Before);
+            configuration.AddRequestModule(new LatencyModule(latencyPerformer, latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.Before);
         }
 
-        public static void SetupLatencyOnEveryRetry(
+        public static void InjectLatencyOnEveryRetry(
             this IClusterClientConfiguration configuration, 
-            Func<TimeSpan> delayProvider, 
+            Func<TimeSpan> latencyProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(new LatencyPerformer(), delayProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
+            configuration.AddRequestModule(new LatencyModule(new LatencyPerformer(), latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
         }
         
-        public static void SetupLatencyOnEveryRetry(
+        public static void InjectLatencyOnEveryRetry(
             this IClusterClientConfiguration configuration, 
             ILatencyPerformer latencyPerformer,
-            Func<TimeSpan> delayProvider, 
+            Func<TimeSpan> latencyProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(latencyPerformer, delayProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
+            configuration.AddRequestModule(new LatencyModule(latencyPerformer, latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
         }
 
-        public static void SetupLatencyOnEveryNetworkCall(
+        public static void InjectLatencyOnEveryNetworkCall(
             this IClusterClientConfiguration configuration,
             Func<TimeSpan> delayProvider,
             Func<double> rateProvider)
@@ -50,13 +50,13 @@ namespace ClusterClient.Chaos.Configuration
             configuration.DefaultRequestStrategy = new LatencyStrategy(new LatencyPerformer(), delayProvider, rateProvider, configuration.DefaultRequestStrategy);
         }
 
-        public static void SetupLatencyOnEveryNetworkCall(
+        public static void InjectLatencyOnEveryNetworkCall(
             this IClusterClientConfiguration configuration,
             ILatencyPerformer latencyPerformer,
-            Func<TimeSpan> delayProvider,
+            Func<TimeSpan> latencyProvider,
             Func<double> rateProvider)
         {
-            configuration.DefaultRequestStrategy = new LatencyStrategy(latencyPerformer, delayProvider, rateProvider, configuration.DefaultRequestStrategy);
+            configuration.DefaultRequestStrategy = new LatencyStrategy(latencyPerformer, latencyProvider, rateProvider, configuration.DefaultRequestStrategy);
         }
     }
 }
