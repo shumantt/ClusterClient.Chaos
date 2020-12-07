@@ -6,7 +6,7 @@ using Vostok.Clusterclient.Core.Sending;
 
 namespace ClusterClient.Chaos.Latency
 {
-    public class LatencyRequestSender : IRequestSender
+    internal class LatencyRequestSender : IRequestSender
     {
         private readonly IRequestSender baseRequestSender;
         private readonly ILatencyPerformer latencyPerformer;

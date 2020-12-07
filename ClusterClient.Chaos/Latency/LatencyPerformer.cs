@@ -5,7 +5,7 @@ using Vostok.Commons.Threading;
 
 namespace ClusterClient.Chaos.Latency
 {
-    public class LatencyPerformer : ILatencyPerformer
+    internal class LatencyPerformer : ILatencyPerformer
     {
         public bool ShouldPerformLatency(double rate)
         {

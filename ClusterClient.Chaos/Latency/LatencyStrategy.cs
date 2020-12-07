@@ -8,7 +8,7 @@ using Vostok.Clusterclient.Core.Strategies;
 
 namespace ClusterClient.Chaos.Latency
 {
-    public class LatencyStrategy : IRequestStrategy
+    internal class LatencyStrategy : IRequestStrategy
     {
         private readonly ILatencyPerformer latencyPerformer;
         private readonly Func<TimeSpan> latencyProvider;

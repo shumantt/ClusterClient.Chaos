@@ -5,7 +5,7 @@ using Vostok.Clusterclient.Core.Modules;
 
 namespace ClusterClient.Chaos.Latency
 {
-    public class LatencyModule : IRequestModule
+    internal class LatencyModule : IRequestModule
     {
         private readonly Func<TimeSpan> latencyProvider;
         private readonly Func<double> rateProvider;
