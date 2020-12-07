@@ -98,6 +98,7 @@ namespace ClusterClient.Chaos.Configuration
         /// <example>
         /// <code>
         ///   ---► + injected latency ---► replica1 ---► + injected latency ---> replica2 ...
+        ///                                                          ◄---------------------|
         ///     
         /// </code>
         /// </example>
@@ -118,7 +119,7 @@ namespace ClusterClient.Chaos.Configuration
         /// <example>
         /// <code>
         ///   ---► + injected latency ---► replica1 ---► + injected latency ---> replica2 ...
-        ///                                                       ◄---------------------|
+        ///                                                          ◄---------------------|
         /// </code>
         /// </example>
         /// <param name="configuration">IClusterClientConfiguration instance</param>
