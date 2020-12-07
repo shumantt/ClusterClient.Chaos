@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExampleServer.Controllers
@@ -7,10 +8,19 @@ namespace ExampleServer.Controllers
     public class ExampleController : ControllerBase
     {
         [HttpPost("example/measure")]
-        public ActionResult<string> MeasureTime([FromBody] DateTime sendTime)
+        public ActionResult<string> MeasureTime([FromBody] DateTime sendTime, bool success)
         {
             var time = DateTime.Now - sendTime;
-            return Ok($"Received result after around {time}");
+            var message = $"Received result after around {time}";
+            if (success)
+            {
+                return Ok(message);
+            }
+
+            return new ObjectResult(message)
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError
+            };
         }
 
         [HttpGet("name")]
@@ -29,6 +39,17 @@ namespace ExampleServer.Controllers
         public ActionResult<string> GetCity()
         {
             return "CityOfChaos";
+        }
+
+        [HttpGet("error")]
+        public ActionResult FailureEndpoint(bool success)
+        {
+            if (success)
+            {
+                return Ok();
+            }
+            
+            throw new Exception("Oooops");
         }
     }
 }

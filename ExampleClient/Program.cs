@@ -40,6 +40,7 @@ namespace ExampleClient
                 var response = client.Send(
                     Request
                         .Post("example/measure")
+                        .WithAdditionalQueryParameter("success", true)
                         .WithContentTypeHeader("application/json")
                         .WithContent(JsonSerializer.Serialize(DateTime.Now))
                 );
