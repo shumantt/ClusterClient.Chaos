@@ -73,7 +73,10 @@ configuration.InjectLatencyOnEveryNetworkCall(() => TimeSpan.FromSeconds(1), () 
 
 ## Example
 
-ClusterClient.Chaos and chaos testing example can be found [at this test](Example.ChaosTesting/LatencyTests.cs) with detailed explanation in [docs]().
+ClusterClient.Chaos and chaos testing example can be found [at this test](Example.ChaosTesting/LatencyTests.cs)
+
+<!--
+with detailed explanation in [docs]().
 
 [comment]: # (todo docs)
 
@@ -82,3 +85,4 @@ ClusterClient.Chaos and chaos testing example can be found [at this test](Exampl
 [Chaos testing with Vostok.ClusterClient]() - by Andrey Shumeev
 
 [comment]: # (todo article and link)
+-->
