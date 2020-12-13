@@ -31,7 +31,7 @@ There are overloads with `ILatencyPerformer` parameter, so you can implement you
 There are three ways to configure latency injection using `ClusterClient.Chaos`:
 - **[Inject total latency](#total-latency)**
 - **[Inject every call retry latency](#every-retry-latency)**
-- **[Inject every network call latency]()**
+- **[Inject every network call latency](#every-network-call-latency)**
 
 #### Total latency
 With this configuration the latency is injected at the beginning of the request's pipeline
