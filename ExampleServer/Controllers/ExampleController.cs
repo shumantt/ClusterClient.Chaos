@@ -7,6 +7,27 @@ namespace ExampleServer.Controllers
     [ApiController]
     public class ExampleController : ControllerBase
     {
+        [HttpGet("name")]
+        public ActionResult<string> GetName() => "Sample Name";
+
+        [HttpGet("age")]
+        public ActionResult<int> GetAge() => 24;
+
+        [HttpGet("city")]
+        public ActionResult<string> GetCity() => "CityOfChaos";
+        
+
+        [HttpGet("error")]
+        public ActionResult FailureEndpoint(bool success)
+        {
+            if (success)
+            {
+                return Ok();
+            }
+            
+            throw new Exception("Oooops");
+        }
+
         [HttpPost("example/measure")]
         public ActionResult<string> MeasureTime([FromBody] DateTime sendTime, bool success)
         {
@@ -21,35 +42,6 @@ namespace ExampleServer.Controllers
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError
             };
-        }
-
-        [HttpGet("name")]
-        public ActionResult<string> GetName()
-        {
-            return "Sample Name";
-        }
-        
-        [HttpGet("age")]
-        public ActionResult<int> GetAge()
-        {
-            return 24;
-        }
-
-        [HttpGet("city")]
-        public ActionResult<string> GetCity()
-        {
-            return "CityOfChaos";
-        }
-
-        [HttpGet("error")]
-        public ActionResult FailureEndpoint(bool success)
-        {
-            if (success)
-            {
-                return Ok();
-            }
-            
-            throw new Exception("Oooops");
         }
     }
 }

@@ -75,12 +75,16 @@ configuration.InjectLatencyOnEveryNetworkCall(() => TimeSpan.FromSeconds(1), () 
 
 ClusterClient.Chaos and chaos testing example can be found [at this test](Example.ChaosTesting/LatencyTests.cs)
 
+## Blog posts
+
+[Chaos engineering: how to test latency resilience](https://shumeev.medium.com/chaos-engineering-how-to-test-latency-resilience-d72936112d2e)
+
 <!--
 with detailed explanation in [docs]().
 
 [comment]: # (todo docs)
 
-### Blog post
+
 
 [Chaos testing with Vostok.ClusterClient]() - by Andrey Shumeev
 
