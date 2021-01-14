@@ -1,4 +1,5 @@
 using System;
+using ClusterClient.Chaos.Common;
 using ClusterClient.Chaos.Latency;
 using Vostok.Clusterclient.Core;
 using Vostok.Clusterclient.Core.Misc;
@@ -25,7 +26,7 @@ namespace ClusterClient.Chaos.Configuration
             Func<TimeSpan> latencyProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(new LatencyPerformer(), latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.Before);
+            configuration.AddRequestModule(new LatencyModule(new LatencyPerformer(), new RateManager(), latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.Before);
         }
         
         /// <summary>
@@ -47,7 +48,7 @@ namespace ClusterClient.Chaos.Configuration
             Func<TimeSpan> latencyProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(latencyPerformer, latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.Before);
+            configuration.AddRequestModule(new LatencyModule(latencyPerformer, new RateManager(), latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.Before);
         }
 
         /// <summary>
@@ -67,7 +68,7 @@ namespace ClusterClient.Chaos.Configuration
             Func<TimeSpan> latencyProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(new LatencyPerformer(), latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
+            configuration.AddRequestModule(new LatencyModule(new LatencyPerformer(), new RateManager(), latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
         }
         
         /// <summary>
@@ -89,7 +90,7 @@ namespace ClusterClient.Chaos.Configuration
             Func<TimeSpan> latencyProvider, 
             Func<double> rateProvider)
         {
-            configuration.AddRequestModule(new LatencyModule(latencyPerformer, latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
+            configuration.AddRequestModule(new LatencyModule(latencyPerformer, new RateManager(), latencyProvider, rateProvider), RequestModule.RequestRetry, ModulePosition.After);
         }
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace ClusterClient.Chaos.Configuration
             Func<TimeSpan> latencyProvider,
             Func<double> rateProvider)
         {
-            configuration.DefaultRequestStrategy = new LatencyStrategy(new LatencyPerformer(), latencyProvider, rateProvider, configuration.DefaultRequestStrategy);
+            configuration.DefaultRequestStrategy = new LatencyStrategy(new LatencyPerformer(), new RateManager(), latencyProvider, rateProvider, configuration.DefaultRequestStrategy);
         }
 
         /// <summary>
@@ -123,7 +124,7 @@ namespace ClusterClient.Chaos.Configuration
         /// </code>
         /// </example>
         /// <param name="configuration">IClusterClientConfiguration instance</param>
-        /// <param name="latencyPerformer">Custom class for latency performing or simulation</param>
+        /// <param name="latencyPerformer">Custom class for latency performing</param>
         /// <param name="latencyProvider">Func returning latency to inject</param>
         /// <param name="rateProvider">Func returning injection probability (rate)</param>
         public static void InjectLatencyOnEveryNetworkCall(
@@ -132,7 +133,7 @@ namespace ClusterClient.Chaos.Configuration
             Func<TimeSpan> latencyProvider,
             Func<double> rateProvider)
         {
-            configuration.DefaultRequestStrategy = new LatencyStrategy(latencyPerformer, latencyProvider, rateProvider, configuration.DefaultRequestStrategy);
+            configuration.DefaultRequestStrategy = new LatencyStrategy(latencyPerformer, new RateManager(), latencyProvider, rateProvider, configuration.DefaultRequestStrategy);
         }
     }
 }

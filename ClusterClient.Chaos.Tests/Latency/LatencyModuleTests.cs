@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ClusterClient.Chaos.Common;
 using ClusterClient.Chaos.Latency;
 using ClusterClient.Chaos.Tests.Mocks;
 using FluentAssertions;
@@ -10,7 +11,7 @@ using NUnit.Framework;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.Clusterclient.Core.Modules;
 
-namespace ClusterClient.Chaos.Tests
+namespace ClusterClient.Chaos.Tests.Latency
 {
     public class LatencyModuleTests
     {
@@ -39,11 +40,11 @@ namespace ClusterClient.Chaos.Tests
         {
             var latency = TimeSpan.FromSeconds(2);
             var budget = TimeSpan.FromSeconds(1);
-            var latencyPerformer = new MockLatencyPerformer(_ => true);
+            var latencyPerformer = new MockLatencyPerformer();
             var context = Substitute.For<IRequestContext>();
             context.Budget.Remaining.Returns(budget);
             
-            var module = new LatencyModule(latencyPerformer, () => latency, () => 1);
+            var module = new LatencyModule(latencyPerformer, new RateManager(), () => latency, () => 1);
 
             var result = await module.ExecuteAsync(context, defaultNext);
 
@@ -58,11 +59,11 @@ namespace ClusterClient.Chaos.Tests
         {
             var latency = TimeSpan.FromSeconds(1);
             var budget = TimeSpan.FromSeconds(2);
-            var latencyPerformer = new MockLatencyPerformer(_ => true);
+            var latencyPerformer = new MockLatencyPerformer();
             var context = Substitute.For<IRequestContext>();
             context.Budget.Remaining.Returns(budget);
             
-            var module = new LatencyModule(latencyPerformer, () => latency, () => 1);
+            var module = new LatencyModule(latencyPerformer, new RateManager(), () => latency, () => 1);
 
             var result = await module.ExecuteAsync(context, defaultNext);
 

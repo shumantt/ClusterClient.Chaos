@@ -7,11 +7,6 @@ namespace ClusterClient.Chaos.Latency
 {
     internal class LatencyPerformer : ILatencyPerformer
     {
-        public bool ShouldPerformLatency(double rate)
-        {
-            return rate > 0 && ThreadSafeRandom.NextDouble() <= rate;
-        }
-
         public Task PerformLatencyAsync(TimeSpan latency, CancellationToken cancellationToken)
         {
             return Task.Delay(latency, cancellationToken);

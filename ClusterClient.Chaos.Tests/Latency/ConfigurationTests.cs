@@ -13,7 +13,7 @@ using Vostok.Clusterclient.Core.Strategies;
 using Vostok.Clusterclient.Core.Topology;
 using Vostok.Clusterclient.Core.Transport;
 
-namespace ClusterClient.Chaos.Tests
+namespace ClusterClient.Chaos.Tests.Latency
 {
     public class ConfigurationTests
     {
@@ -29,7 +29,7 @@ namespace ClusterClient.Chaos.Tests
             clusterProvider.GetCluster().Returns(new List<Uri> { new Uri("http://localhost1") });
             
             var delay = TimeSpan.FromMilliseconds(200);
-            var latencyPerformer = new MockLatencyPerformer(_ => true);
+            var latencyPerformer = new MockLatencyPerformer();
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
                 {
@@ -66,7 +66,7 @@ namespace ClusterClient.Chaos.Tests
             
             
             var latency = TimeSpan.FromMilliseconds(200);
-            var latencyPerformer = new MockLatencyPerformer(_ => true);
+            var latencyPerformer = new MockLatencyPerformer();
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
                 {
@@ -108,7 +108,7 @@ namespace ClusterClient.Chaos.Tests
             
             
             var latency = TimeSpan.FromMilliseconds(200);
-            var latencyPerformer = new MockLatencyPerformer(_ => true);
+            var latencyPerformer = new MockLatencyPerformer();
             var clusterClient = new Vostok.Clusterclient.Core.ClusterClient(null,
                 configuration =>
                 {

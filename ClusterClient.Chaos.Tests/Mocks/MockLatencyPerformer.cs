@@ -7,15 +7,7 @@ namespace ClusterClient.Chaos.Tests.Mocks
 {
     public class MockLatencyPerformer : ILatencyPerformer
     {
-        private readonly Func<double, bool> shouldPerformLatency;
-        public TimeSpan TotalAddedLatency = TimeSpan.Zero;
-        
-        public MockLatencyPerformer(Func<double, bool> shouldPerformLatency)
-        {
-            this.shouldPerformLatency = shouldPerformLatency;
-        }
-
-        public bool ShouldPerformLatency(double rate) => shouldPerformLatency(rate);
+        public TimeSpan TotalAddedLatency { get; private set; } = TimeSpan.Zero;
 
         public Task PerformLatencyAsync(TimeSpan latency, CancellationToken cancellationToken)
         {

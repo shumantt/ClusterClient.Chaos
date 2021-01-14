@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ClusterClient.Chaos.Common;
 using ClusterClient.Chaos.Latency;
 using ClusterClient.Chaos.Tests.Mocks;
 using FluentAssertions;
@@ -10,7 +11,7 @@ using NUnit.Framework;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.Clusterclient.Core.Sending;
 
-namespace ClusterClient.Chaos.Tests
+namespace ClusterClient.Chaos.Tests.Latency
 {
     public class LatencyRequestSenderTests
     {
@@ -24,8 +25,8 @@ namespace ClusterClient.Chaos.Tests
             baseSender
                 .SendToReplicaAsync(replica, request, null, expectedTimeout,  cancellationToken)
                 .Returns(Task.FromResult<ReplicaResult>(null));
-            var latencyPerformer = new MockLatencyPerformer(_ => true);
-            var latencySender = new LatencyRequestSender(baseSender, latencyPerformer, latency, 1);
+            var latencyPerformer = new MockLatencyPerformer();
+            var latencySender = new LatencyRequestSender(baseSender, latencyPerformer, new RateManager(), latency, 1);
 
             await latencySender.SendToReplicaAsync(replica, request, null, callTimeout, cancellationToken);
 

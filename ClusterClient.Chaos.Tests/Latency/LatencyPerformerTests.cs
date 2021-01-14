@@ -6,7 +6,7 @@ using ClusterClient.Chaos.Latency;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace ClusterClient.Chaos.Tests
+namespace ClusterClient.Chaos.Tests.Latency
 {
     public class LatencyPerformerTests
     {
@@ -41,20 +41,6 @@ namespace ClusterClient.Chaos.Tests
             cts.Cancel();
 
             await action.Should().ThrowAsync<TaskCanceledException>();
-        }
-
-        [Test]
-        public void ShouldPerformLatency_Return_False_WhenRateIsZero()
-        {
-            var actual = latencyPerformer.ShouldPerformLatency(0);
-            actual.Should().BeFalse();
-        }
-        
-        [Test]
-        public void ShouldPerformLatency_Return_True_WhenRateIsOne()
-        {
-            var actual = latencyPerformer.ShouldPerformLatency(1);
-            actual.Should().BeTrue();
         }
     }
 }

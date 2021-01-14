@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ClusterClient.Chaos.Common;
 using Vostok.Clusterclient.Core.Model;
 using Vostok.Clusterclient.Core.Sending;
 
@@ -10,13 +11,20 @@ namespace ClusterClient.Chaos.Latency
     {
         private readonly IRequestSender baseRequestSender;
         private readonly ILatencyPerformer latencyPerformer;
+        private readonly RateManager rateManager;
         private readonly TimeSpan latency;
         private readonly double rate;
 
-        public LatencyRequestSender(IRequestSender baseRequestSender, ILatencyPerformer latencyPerformer, TimeSpan latency, double rate)
+        public LatencyRequestSender(
+            IRequestSender baseRequestSender,
+            ILatencyPerformer latencyPerformer,
+            RateManager rateManager,
+            TimeSpan latency,
+            double rate)
         {
             this.baseRequestSender = baseRequestSender;
             this.latencyPerformer = latencyPerformer;
+            this.rateManager = rateManager;
             this.latency = latency;
             this.rate = rate;
         }
@@ -25,7 +33,7 @@ namespace ClusterClient.Chaos.Latency
             CancellationToken cancellationToken)
         {
             var leftTimeout = timeout;
-            if (latencyPerformer.ShouldPerformLatency(rate))
+            if (rateManager.ShouldInjectWithRate(rate))
             {
                 leftTimeout = latency > timeout ? TimeSpan.Zero : timeout - latency;
                 var addedLatency = leftTimeout > TimeSpan.Zero ? latency : timeout; 
