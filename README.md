@@ -4,11 +4,11 @@ The library for practicing [chaos engineering](https://principlesofchaos.org/) u
 
 Heavily inspired by [Netflix Chaos Monkey](https://github.com/Netflix/chaosmonkey) and [Simmy](https://github.com/Polly-Contrib/Simmy) projects.
 
-## Latency injection
+## Latency Injection
 
-For now this library provide an API to inject the specified additional latency for the http request with specified rate. 
+This library provide an API to inject the specified additional latency for the http request with specified rate. 
 Using this injection you can observe your system behavior in moments of requests` execution time random increasings. 
-The reasons for such extra long requests' latencies could be network problems or target request handling server's problems.
+In real world, the reasons for such extra long requests' latencies can be network problems or server's problems.
 
 ### Usage
 
@@ -71,6 +71,18 @@ configuration.InjectLatencyOnEveryNetworkCall(() => TimeSpan.FromSeconds(1), () 
 
 ![](docs/Network.svg)
 
+## Error Injection
+Along with latency injection, it is possible to inject response transformation into error with provided rate using ClusterClient.Chaos.
+
+### Usage:
+```c#
+var client = new ClusterClient(new SilentLog(), configuration =>
+            {
+                configuration.InjectCommonServerError(() => 0.05); //inject tranformation of http response into InternalServerError with 5% probability
+            });
+```
+
+
 ## Example
 
 ClusterClient.Chaos and chaos testing example can be found [at this test](Example.ChaosTesting/LatencyTests.cs)
@@ -79,14 +91,3 @@ ClusterClient.Chaos and chaos testing example can be found [at this test](Exampl
 
 [Chaos engineering: how to test latency resilience](https://shumeev.medium.com/chaos-engineering-how-to-test-latency-resilience-d72936112d2e)
 
-<!--
-with detailed explanation in [docs]().
-
-[comment]: # (todo docs)
-
-
-
-[Chaos testing with Vostok.ClusterClient]() - by Andrey Shumeev
-
-[comment]: # (todo article and link)
--->
