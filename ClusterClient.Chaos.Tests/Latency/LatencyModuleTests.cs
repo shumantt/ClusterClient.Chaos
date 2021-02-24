@@ -38,6 +38,24 @@ namespace ClusterClient.Chaos.Tests.Latency
         [Test]
         public async Task LatencyFullyPerformed_WhenLatencyIsLessThanBudget()
         {
+            var latency = TimeSpan.FromSeconds(1);
+            var budget = TimeSpan.FromSeconds(2);
+            var latencyPerformer = new MockLatencyPerformer();
+            var context = Substitute.For<IRequestContext>();
+            context.Budget.Remaining.Returns(budget);
+            
+            var module = new LatencyModule(latencyPerformer, new RateManager(), () => latency, () => 1);
+
+            var result = await module.ExecuteAsync(context, defaultNext);
+
+            nextExecuted.Should().BeTrue();
+            result.Status.Should().Be(ClusterResultStatus.Success);
+            latencyPerformer.TotalAddedLatency.Should().Be(latency);
+        }
+
+        [Test]
+        public async Task TimeExpiredReturn_WhenRequestedLatencyLessThanBudget()
+        {
             var latency = TimeSpan.FromSeconds(2);
             var budget = TimeSpan.FromSeconds(1);
             var latencyPerformer = new MockLatencyPerformer();
@@ -52,24 +70,6 @@ namespace ClusterClient.Chaos.Tests.Latency
             result.Status.Should().Be(ClusterResultStatus.TimeExpired);
             latencyPerformer.TotalAddedLatency.Should().Be(budget);
             
-        }
-
-        [Test]
-        public async Task TimeExpiredReturn_WhenRequestedLatencyLessThanBudget()
-        {
-            var latency = TimeSpan.FromSeconds(1);
-            var budget = TimeSpan.FromSeconds(2);
-            var latencyPerformer = new MockLatencyPerformer();
-            var context = Substitute.For<IRequestContext>();
-            context.Budget.Remaining.Returns(budget);
-            
-            var module = new LatencyModule(latencyPerformer, new RateManager(), () => latency, () => 1);
-
-            var result = await module.ExecuteAsync(context, defaultNext);
-
-            nextExecuted.Should().BeTrue();
-            result.Status.Should().Be(ClusterResultStatus.Success);
-            latencyPerformer.TotalAddedLatency.Should().Be(latency);
         }
     }
 }
