@@ -7,7 +7,7 @@ using Vostok.Clusterclient.Core.Modules;
 
 namespace ClusterClient.Chaos.Configuration
 {
-    public static class ClusterClientConfigurationExtensions
+    public static partial class ClusterClientConfigurationExtensions
     {
         /// <summary>
         /// Inject latency to the whole request pipeline with default latency performer
